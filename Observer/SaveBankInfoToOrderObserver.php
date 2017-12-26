@@ -8,16 +8,18 @@ class SaveBankInfoToOrderObserver implements ObserverInterface {
     protected $_inputParamsResolver;
     protected $_quoteRepository;
     protected $logger;
+    protected $_state;
 
-    public function __construct(\Magento\Webapi\Controller\Rest\InputParamsResolver $inputParamsResolver, \Magento\Quote\Model\QuoteRepository $quoteRepository, \Psr\Log\LoggerInterface $logger) {
+    public function __construct(\Magento\Webapi\Controller\Rest\InputParamsResolver $inputParamsResolver, \Magento\Quote\Model\QuoteRepository $quoteRepository, \Psr\Log\LoggerInterface $logger,\Magento\Framework\App\State $state) {
         $this->_inputParamsResolver = $inputParamsResolver;
         $this->_quoteRepository = $quoteRepository;
         $this->logger = $logger;
+        $this->_state = $state;
     }
 
     public function execute(EventObserver $observer) {
         $inputParams = $this->_inputParamsResolver->resolve();
-
+        if($this->_state->getAreaCode() != \Magento\Framework\App\Area::AREA_ADMINHTML){
         foreach ($inputParams as $inputParam) {
             if ($inputParam instanceof \Magento\Quote\Model\Quote\Payment) {
                 $paymentData = $inputParam->getData('additional_data');
@@ -34,6 +36,6 @@ class SaveBankInfoToOrderObserver implements ObserverInterface {
                 }
             }
         }
-
+       }
     }
 }
